@@ -15,6 +15,13 @@ export default function Home() {
         {i18n.language === 'zh' ? 'EN' : '中文'}
       </button>
       
+      <button
+        onClick={() => navigate('/login')}
+        className="absolute top-4 left-4 px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20"
+      >
+        登录
+      </button>
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
