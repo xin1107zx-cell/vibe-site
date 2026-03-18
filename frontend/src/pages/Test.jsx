@@ -21,6 +21,12 @@ export default function Test() {
   const handleSubmit = async () => {
     try {
       const user = JSON.parse(localStorage.getItem('user') || 'null');
+      if (!user) {
+        alert('请先登录');
+        navigate('/login');
+        return;
+      }
+      
       let deviceId = localStorage.getItem('deviceId');
       if (!deviceId) {
         deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -35,7 +41,7 @@ export default function Test() {
         testType: formData.testType,
         tarotCards,
         deviceId,
-        userId: user?.id
+        userId: user.id
       });
       navigate(`/result/${response.data.id}`);
     } catch (error) {

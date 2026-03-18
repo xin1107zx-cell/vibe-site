@@ -37,14 +37,8 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center">
-        <h2 className="text-2xl font-bold mb-6">登录以保存历史记录</h2>
+        <h2 className="text-2xl font-bold mb-6">登录以使用服务</h2>
         <div id="googleSignIn" className="mb-4"></div>
-        <button
-          onClick={() => navigate('/test')}
-          className="text-gray-400 hover:text-white"
-        >
-          跳过，匿名使用
-        </button>
       </div>
     </div>
   );

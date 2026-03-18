@@ -6,6 +6,15 @@ export default function Home() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
+  const handleStart = () => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      navigate('/login');
+    } else {
+      navigate('/test');
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <button 
@@ -32,7 +41,7 @@ export default function Home() {
         </h1>
         <p className="text-xl mb-8 text-gray-300">{t('home.subtitle')}</p>
         <button
-          onClick={() => navigate('/test')}
+          onClick={handleStart}
           className="px-8 py-4 bg-gradient-to-r from-yellow-400 to-cyan-400 text-black font-bold rounded-lg hover:scale-105 transition"
         >
           {t('home.start')}
