@@ -20,6 +20,6 @@ app.use('/api/auth', (await import('./routes/auth.js')).default);
 app.use('/api/readings', (await import('./routes/readings.js')).default);
 app.use('/api/tarot', (await import('./routes/tarot.js')).default);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -1,15 +1,16 @@
 // 简化版报告生成逻辑
 export function generateReport({ birthDate, bloodType, testType, tarotCards }) {
+  const cards = typeof tarotCards === 'string' ? JSON.parse(tarotCards) : tarotCards;
   const zodiac = getZodiac(birthDate);
   const isPositive = Math.random() > 0.1; // 90% 正向
   
   const templates = {
     love: {
-      positive: `${zodiac}座的你在爱情中充满魅力。${bloodType}型血让你在感情中${getBloodTraits(bloodType)}。塔罗牌显示：${tarotCards.map(c => c.name).join('、')}，预示着美好的情感连接即将到来。`,
+      positive: `${zodiac}座的你在爱情中充满魅力。${bloodType}型血让你在感情中${getBloodTraits(bloodType)}。塔罗牌显示：${cards.map(c => c.name).join('、')}，预示着美好的情感连接即将到来。`,
       negative: `说实话，${zodiac}座在爱情里有时候挺作的。不过${bloodType}型血的执着也许能帮你找到对的人。`
     },
     friendship: {
-      positive: `作为${zodiac}座，你的朋友运一直不错。${bloodType}型血的性格让你容易交到真心朋友。塔罗牌${tarotCards[0].name}暗示，珍惜身边的人。`,
+      positive: `作为${zodiac}座，你的朋友运一直不错。${bloodType}型血的性格让你容易交到真心朋友。塔罗牌${cards[0].name}暗示，珍惜身边的人。`,
       negative: `${zodiac}座有时候太独立了，记得多关心朋友。${bloodType}型血容易钻牛角尖，放轻松点。`
     },
     career: {

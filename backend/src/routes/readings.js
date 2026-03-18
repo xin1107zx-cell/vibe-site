@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
         birthDate: new Date(birthDate),
         bloodType,
         testType,
-        tarotCards,
+        tarotCards: JSON.stringify(tarotCards),
         reportContent
       }
     });

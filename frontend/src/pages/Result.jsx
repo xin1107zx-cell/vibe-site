@@ -8,7 +8,7 @@ export default function Result() {
   const [reading, setReading] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:3001/api/readings?deviceId=${localStorage.getItem('deviceId')}`)
+    axios.get(`http://170.106.104.250:3002/api/readings?deviceId=${localStorage.getItem('deviceId')}`)
       .then(res => {
         const found = res.data.find(r => r.id === id);
         setReading(found);

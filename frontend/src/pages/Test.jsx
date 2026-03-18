@@ -15,19 +15,24 @@ export default function Test() {
   const [tarotCards, setTarotCards] = useState([]);
 
   const handleSubmit = async () => {
-    const deviceId = localStorage.getItem('deviceId') || crypto.randomUUID();
-    localStorage.setItem('deviceId', deviceId);
-    
-    const response = await axios.post('http://localhost:3001/api/readings', {
-      ...formData,
-      tarotCards,
-      deviceId
-    });
-    navigate(`/result/${response.data.id}`);
+    try {
+      const deviceId = localStorage.getItem('deviceId') || crypto.randomUUID();
+      localStorage.setItem('deviceId', deviceId);
+      
+      const response = await axios.post('http://170.106.104.250:3002/api/readings', {
+        ...formData,
+        tarotCards,
+        deviceId
+      });
+      navigate(`/result/${response.data.id}`);
+    } catch (error) {
+      console.error('提交失败:', error);
+      alert('生成报告失败，请重试');
+    }
   };
 
   const drawCards = async () => {
-    const response = await axios.post('http://localhost:3001/api/tarot/draw');
+    const response = await axios.post('http://170.106.104.250:3002/api/tarot/draw');
     setTarotCards(response.data);
     setStep(3);
   };
@@ -47,23 +52,25 @@ export default function Test() {
             <select
               value={formData.bloodType}
               onChange={(e) => setFormData({...formData, bloodType: e.target.value})}
-              className="w-full p-3 rounded-lg bg-white/20 mb-4"
+              className="w-full p-3 rounded-lg bg-white/20 text-white mb-4"
+              style={{color: 'white'}}
             >
-              <option value="">{t('test.bloodType')}</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="O">O</option>
-              <option value="AB">AB</option>
+              <option value="" style={{color: 'black'}}>{t('test.bloodType')}</option>
+              <option value="A" style={{color: 'black'}}>A</option>
+              <option value="B" style={{color: 'black'}}>B</option>
+              <option value="O" style={{color: 'black'}}>O</option>
+              <option value="AB" style={{color: 'black'}}>AB</option>
             </select>
             <select
               value={formData.testType}
               onChange={(e) => setFormData({...formData, testType: e.target.value})}
-              className="w-full p-3 rounded-lg bg-white/20 mb-4"
+              className="w-full p-3 rounded-lg bg-white/20 text-white mb-4"
+              style={{color: 'white'}}
             >
-              <option value="">{t('test.testType')}</option>
-              <option value="love">{t('test.love')}</option>
-              <option value="friendship">{t('test.friendship')}</option>
-              <option value="career">{t('test.career')}</option>
+              <option value="" style={{color: 'black'}}>{t('test.testType')}</option>
+              <option value="love" style={{color: 'black'}}>{t('test.love')}</option>
+              <option value="friendship" style={{color: 'black'}}>{t('test.friendship')}</option>
+              <option value="career" style={{color: 'black'}}>{t('test.career')}</option>
             </select>
             <button
               onClick={() => setStep(2)}

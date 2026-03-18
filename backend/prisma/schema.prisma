@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -24,7 +24,7 @@ model Reading {
   birthDate     DateTime
   bloodType     String
   testType      String
-  tarotCards    Json
+  tarotCards    String
   reportContent String
   language      String   @default("zh")
   createdAt     DateTime @default(now())

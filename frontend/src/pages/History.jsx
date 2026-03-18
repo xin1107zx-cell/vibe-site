@@ -9,7 +9,7 @@ export default function History() {
   useEffect(() => {
     const deviceId = localStorage.getItem('deviceId');
     if (deviceId) {
-      axios.get(`http://localhost:3001/api/readings?deviceId=${deviceId}`)
+      axios.get(`http://170.106.104.250:3002/api/readings?deviceId=${deviceId}`)
         .then(res => setReadings(res.data));
     }
   }, []);
