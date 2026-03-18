@@ -7,7 +7,7 @@ export default function Login() {
   useEffect(() => {
     // Google OAuth 初始化
     window.google?.accounts.id.initialize({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID',
+      client_id: '685986878598-15s935783q96d7v7fdl4g2ar6451qgvo.apps.googleusercontent.com',
       callback: handleCredentialResponse
     });
     
