@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import NavBar from '../components/NavBar';
+import '../i18n/config';
 
 export default function Test() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ export default function Test() {
     try {
       const user = JSON.parse(localStorage.getItem('user') || 'null');
       if (!user) {
-        alert('请先登录');
+        alert(t('test.loginRequired'));
         navigate('/login');
         return;
       }
@@ -42,12 +43,18 @@ export default function Test() {
         testType: formData.testType,
         tarotCards,
         deviceId,
-        userId: user.id
+        userId: user.id,
+        language: i18n.language
       });
       navigate(`/result/${response.data.id}`);
     } catch (error) {
-      console.error('提交失败:', error);
-      alert('生成报告失败，请重试');
+      // 次数不足 → 跳转到价格页
+      if (error.response?.status === 403 && error.response?.data?.error === 'NO_CREDITS') {
+        navigate('/pricing?reason=no_credits');
+        return;
+      }
+      console.error('Submit failed:', error);
+      alert(t('test.submitError'));
     }
   };
 
@@ -75,7 +82,7 @@ export default function Test() {
                 className="p-3 rounded-lg bg-white/20 text-white"
                 style={{color: 'white'}}
               >
-                <option value="" style={{color: 'black'}}>年</option>
+                <option value="" style={{color: 'black'}}>{t('test.yearPlaceholder')}</option>
                 {Array.from({length: 80}, (_, i) => 2010 - i).map(year => (
                   <option key={year} value={year} style={{color: 'black'}}>{year}</option>
                 ))}
@@ -86,7 +93,7 @@ export default function Test() {
                 className="p-3 rounded-lg bg-white/20 text-white"
                 style={{color: 'white'}}
               >
-                <option value="" style={{color: 'black'}}>月</option>
+                <option value="" style={{color: 'black'}}>{t('test.monthPlaceholder')}</option>
                 {Array.from({length: 12}, (_, i) => i + 1).map(month => (
                   <option key={month} value={month} style={{color: 'black'}}>{month}</option>
                 ))}
@@ -97,7 +104,7 @@ export default function Test() {
                 className="p-3 rounded-lg bg-white/20 text-white"
                 style={{color: 'white'}}
               >
-                <option value="" style={{color: 'black'}}>日</option>
+                <option value="" style={{color: 'black'}}>{t('test.dayPlaceholder')}</option>
                 {Array.from({length: 31}, (_, i) => i + 1).map(day => (
                   <option key={day} value={day} style={{color: 'black'}}>{day}</option>
                 ))}

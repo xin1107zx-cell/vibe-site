@@ -1,6 +1,7 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import { generateReport } from '../services/report.js';
+import { generateReportEn } from '../services/report-en.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -8,7 +9,7 @@ const prisma = new PrismaClient();
 // Create reading
 router.post('/', async (req, res) => {
   try {
-    const { birthDate, bloodType, testType, tarotCards, deviceId, userId } = req.body;
+    const { birthDate, bloodType, testType, tarotCards, deviceId, userId, language } = req.body;
 
     // 检查次数
     if (userId) {
@@ -18,7 +19,8 @@ router.post('/', async (req, res) => {
       await prisma.user.update({ where: { id: userId }, data: { credits: { decrement: 1 } } });
     }
 
-    const reportContent = generateReport({ birthDate, bloodType, testType, tarotCards });
+    const reportFn = language === 'en' ? generateReportEn : generateReport;
+    const reportContent = reportFn({ birthDate, bloodType, testType, tarotCards });
     const reading = await prisma.reading.create({
       data: {
         userId,

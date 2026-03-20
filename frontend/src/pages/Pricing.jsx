@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
@@ -49,10 +49,14 @@ function PayPalButton({ plan, userId, onSuccess }) {
 
 export default function Pricing() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const [activePlan, setActivePlan] = useState(null);
   const [success, setSuccess] = useState(null);
+
+  // 检测是否从次数不足跳转过来
+  const noCredits = new URLSearchParams(location.search).get('reason') === 'no_credits';
 
   const plans = [
     {
@@ -107,6 +111,19 @@ export default function Pricing() {
           <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-yellow-400 to-cyan-400 bg-clip-text text-transparent">{t('pricing.title')}</h1>
           <p className="text-gray-300">{t('pricing.subtitle')}</p>
         </motion.div>
+
+        {/* 次数不足提示横幅 */}
+        {noCredits && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 p-5 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-400/50 rounded-2xl text-center"
+          >
+            <div className="text-3xl mb-2">✨</div>
+            <p className="text-lg font-bold text-yellow-300 mb-1">{t('pricing.noCreditsTitle')}</p>
+            <p className="text-sm text-white/70">{t('pricing.noCreditsDesc')}</p>
+          </motion.div>
+        )}
 
         {success && (
           <div className="mb-6 p-4 bg-green-500/20 border border-green-400/50 rounded-xl text-center text-green-300">

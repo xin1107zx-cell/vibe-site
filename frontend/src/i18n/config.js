@@ -24,6 +24,11 @@ const resources = {
         career: '事业',
         drawCards: '抽取塔罗牌',
         submit: '生成报告',
+        yearPlaceholder: '年',
+        monthPlaceholder: '月',
+        dayPlaceholder: '日',
+        loginRequired: '请先登录',
+        submitError: '生成报告失败，请重试',
         drawTitle: '抽取3张塔罗牌',
         drawHint: '请在心里默默想着你所测的内容',
         drawHintSub: '全身心专注，让塔罗牌感应你的能量',
@@ -51,6 +56,8 @@ const resources = {
         usages: '可使用',
         faqTitle: '常见问题',
         successMsg: '🎉 支付成功！已解锁 {{name}}，请重新登录刷新次数。',
+        noCreditsTitle: '你的占卜次数已用完',
+        noCreditsDesc: '选择一个套餐，继续探索你的命运之路 🔮',
         badge: {
           popular: '最受欢迎',
           value: '超值'
@@ -111,6 +118,11 @@ const resources = {
         career: 'Career',
         drawCards: 'Draw Tarot Cards',
         submit: 'Generate Report',
+        yearPlaceholder: 'Year',
+        monthPlaceholder: 'Month',
+        dayPlaceholder: 'Day',
+        loginRequired: 'Please log in first',
+        submitError: 'Failed to generate report, please try again',
         drawTitle: 'Draw 3 Tarot Cards',
         drawHint: 'Silently focus on your question in your mind',
         drawHintSub: 'Concentrate fully and let the cards sense your energy',
@@ -138,6 +150,8 @@ const resources = {
         usages: 'readings',
         faqTitle: 'Frequently Asked Questions',
         successMsg: '🎉 Payment successful! {{name}} unlocked. Please re-login to refresh credits.',
+        noCreditsTitle: 'You\'ve used all your readings',
+        noCreditsDesc: 'Choose a plan to continue your journey 🔮',
         badge: {
           popular: 'Most Popular',
           value: 'Best Value'
