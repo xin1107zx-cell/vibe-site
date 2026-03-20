@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import Test from './pages/Test';
 import Result from './pages/Result';
 import History from './pages/History';
+import Profile from './pages/Profile';
+import Pricing from './pages/Pricing';
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
         <Route path="/test" element={<Test />} />
         <Route path="/result/:id" element={<Result />} />
         <Route path="/history" element={<History />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/pricing" element={<Pricing />} />
       </Routes>
     </BrowserRouter>
   );

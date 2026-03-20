@@ -9,8 +9,16 @@ const prisma = new PrismaClient();
 router.post('/', async (req, res) => {
   try {
     const { birthDate, bloodType, testType, tarotCards, deviceId, userId } = req.body;
+
+    // 检查次数
+    if (userId) {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (!user) return res.status(404).json({ error: '用户不存在' });
+      if (user.credits <= 0) return res.status(403).json({ error: 'NO_CREDITS', message: '次数已用完，请购买更多次数' });
+      await prisma.user.update({ where: { id: userId }, data: { credits: { decrement: 1 } } });
+    }
+
     const reportContent = generateReport({ birthDate, bloodType, testType, tarotCards });
-    
     const reading = await prisma.reading.create({
       data: {
         userId,

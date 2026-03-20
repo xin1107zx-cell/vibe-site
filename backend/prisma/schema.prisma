@@ -8,12 +8,30 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  email      String?  @unique
-  password   String?
-  deviceId   String?
-  createdAt  DateTime @default(now())
-  readings   Reading[]
+  id           String    @id @default(uuid())
+  email        String?   @unique
+  name         String?
+  avatar       String?
+  password     String?
+  deviceId     String?
+  plan         String    @default("free")      // free | pro | unlimited
+  credits      Int       @default(3)           // 剩余次数
+  planExpireAt DateTime?                        // 订阅到期时间
+  createdAt    DateTime  @default(now())
+  readings     Reading[]
+  orders       Order[]
+}
+
+model Order {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  type          String   // once | pro | unlimited
+  amount        Float
+  currency      String   @default("USD")
+  status        String   @default("pending")  // pending | paid | failed
+  paypalOrderId String?
+  createdAt     DateTime @default(now())
 }
 
 model Reading {

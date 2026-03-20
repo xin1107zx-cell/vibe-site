@@ -10,19 +10,29 @@ const prisma = new PrismaClient();
 router.post('/google', async (req, res) => {
   try {
     const { token } = req.body;
-    // 这里需要验证 Google token，简化版直接解析
-    // 生产环境需要用 google-auth-library 验证
     const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
     
     let user = await prisma.user.findUnique({ where: { email: payload.email } });
     if (!user) {
       user = await prisma.user.create({
-        data: { email: payload.email }
+        data: {
+          email: payload.email,
+          name: payload.name || payload.email,
+          avatar: payload.picture || null,
+          credits: 3,
+          plan: 'free'
+        }
+      });
+    } else if (user.credits === null || user.credits === undefined) {
+      // 旧用户补充 credits
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { credits: 3, plan: 'free', name: payload.name || user.name, avatar: payload.picture || user.avatar }
       });
     }
     
     const jwtToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
-    res.json({ token: jwtToken, user: { id: user.id, email: user.email } });
+    res.json({ token: jwtToken, user: { id: user.id, email: user.email, name: user.name, avatar: user.avatar, credits: user.credits, plan: user.plan } });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

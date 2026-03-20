@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import NavBar from '../components/NavBar';
 
 export default function Test() {
   const { t } = useTranslation();
@@ -35,7 +36,7 @@ export default function Test() {
       
       const birthDate = `${formData.birthYear}-${String(formData.birthMonth).padStart(2, '0')}-${String(formData.birthDay).padStart(2, '0')}`;
       
-      const response = await axios.post('http://170.106.104.250:3002/api/readings', {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/readings`, {
         birthDate,
         bloodType: formData.bloodType,
         testType: formData.testType,
@@ -52,7 +53,7 @@ export default function Test() {
 
   const drawCards = async () => {
     setIsDrawing(true);
-    const response = await axios.post('http://170.106.104.250:3002/api/tarot/draw');
+    const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/tarot/draw`);
     setTimeout(() => {
       setTarotCards(response.data);
       setIsDrawing(false);
@@ -61,7 +62,8 @@ export default function Test() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 pt-20">
+      <NavBar />
       <div className="max-w-md w-full bg-white/10 backdrop-blur-lg rounded-2xl p-8">
         {step === 1 && (
           <div>
@@ -136,7 +138,21 @@ export default function Test() {
         
         {step === 2 && (
           <div>
-            <h2 className="text-2xl font-bold mb-6">抽取3张牌</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('test.drawTitle')}</h2>
+
+            {/* 醒目提示：心里默想 */}
+            {!isDrawing && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mb-6 p-5 rounded-2xl bg-gradient-to-br from-purple-500/30 to-cyan-500/20 border border-purple-400/40 text-center"
+              >
+                <div className="text-4xl mb-3">🔮</div>
+                <p className="text-xl font-bold text-yellow-300 mb-1">{t('test.drawHint')}</p>
+                <p className="text-sm text-white/70">{t('test.drawHintSub')}</p>
+              </motion.div>
+            )}
+
             {isDrawing ? (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -150,14 +166,14 @@ export default function Test() {
                 >
                   🔮
                 </motion.div>
-                <p className="text-lg">正在为你抽取塔罗牌...</p>
+                <p className="text-lg">{t('test.drawing')}</p>
               </motion.div>
             ) : (
               <button
                 onClick={drawCards}
                 className="w-full py-3 bg-gradient-to-r from-yellow-400 to-cyan-400 text-black font-bold rounded-lg"
               >
-                抽牌
+                {t('test.drawBtn')}
               </button>
             )}
           </div>
@@ -168,19 +184,23 @@ export default function Test() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h2 className="text-2xl font-bold mb-6">你的塔罗牌</h2>
+            <h2 className="text-2xl font-bold mb-6">{t('test.yourCards')}</h2>
             <div className="space-y-2 mb-6">
-              {tarotCards.map((card, index) => (
-                <motion.div
-                  key={card.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.2 }}
-                  className="p-3 bg-white/20 rounded-lg"
-                >
-                  {card.name} - {card.nameEn}
-                </motion.div>
-              ))}
+              {tarotCards.map((card, index) => {
+                const positions = [t('test.past'), t('test.present'), t('test.future')];
+                return (
+                  <motion.div
+                    key={card.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.2 }}
+                    className="p-3 bg-white/20 rounded-lg flex items-center gap-3"
+                  >
+                    <span className="text-xs text-yellow-300 font-semibold w-10 shrink-0">{positions[index]}</span>
+                    <span>{card.name} · {card.nameEn}</span>
+                  </motion.div>
+                );
+              })}
             </div>
             <button
               onClick={handleSubmit}

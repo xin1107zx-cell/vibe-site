@@ -25,10 +25,13 @@ export default function Home() {
       </button>
       
       <button
-        onClick={() => navigate('/login')}
+        onClick={() => {
+          const user = localStorage.getItem('user');
+          navigate(user ? '/profile' : '/login');
+        }}
         className="absolute top-4 left-4 px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20"
       >
-        登录
+        {localStorage.getItem('user') ? '个人中心' : '登录'}
       </button>
       
       <motion.div
