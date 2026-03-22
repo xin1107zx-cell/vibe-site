@@ -14,7 +14,18 @@ const PAYPAL_API = process.env.PAYPAL_MODE === 'live'
   ? 'https://api-m.paypal.com'
   : 'https://api-m.sandbox.paypal.com';
 
+// 检查 PayPal 配置是否完整
+function checkPayPalConfig() {
+  if (!process.env.PAYPAL_CLIENT_ID || process.env.PAYPAL_CLIENT_ID.includes('你的')) {
+    throw new Error('PAYPAL_CLIENT_ID 未配置，请在 .env 文件中填写真实的 PayPal Client ID');
+  }
+  if (!process.env.PAYPAL_SECRET || process.env.PAYPAL_SECRET.includes('你的')) {
+    throw new Error('PAYPAL_SECRET 未配置，请在 .env 文件中填写真实的 PayPal Secret');
+  }
+}
+
 async function getPayPalToken() {
+  checkPayPalConfig();
   const res = await fetch(`${PAYPAL_API}/v1/oauth2/token`, {
     method: 'POST',
     headers: {
@@ -26,6 +37,10 @@ async function getPayPalToken() {
     body: 'grant_type=client_credentials',
   });
   const data = await res.json();
+  if (!data.access_token) {
+    console.error('PayPal token 获取失败:', JSON.stringify(data));
+    throw new Error(`PayPal 认证失败: ${data.error_description || data.error || '未知错误'}。请确认 Client ID 和 Secret 是否正确，且当前为 ${process.env.PAYPAL_MODE || 'sandbox'} 模式`);
+  }
   return data.access_token;
 }
 
@@ -54,21 +69,28 @@ router.post('/create', async (req, res) => {
     });
     const ppOrder = await ppRes.json();
 
+    if (!ppOrder.id) {
+      console.error('PayPal 创建订单失败:', JSON.stringify(ppOrder));
+      return res.status(500).json({ error: `PayPal 创建订单失败: ${ppOrder.message || JSON.stringify(ppOrder)}` });
+    }
+
     // 保存订单到数据库
     await prisma.order.create({
       data: { userId, type, amount: plan.amount, paypalOrderId: ppOrder.id, status: 'pending' }
     });
 
-    res.json({ orderId: ppOrder.id, approveUrl: ppOrder.links.find(l => l.rel === 'approve')?.href });
+    res.json({ orderId: ppOrder.id, approveUrl: ppOrder.links?.find(l => l.rel === 'approve')?.href });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: '创建订单失败' });
+    console.error('创建订单错误:', err);
+    res.status(500).json({ error: err.message || '创建订单失败' });
   }
 });
 
 // PayPal 支付成功回调
 router.post('/capture', async (req, res) => {
   const { orderId } = req.body;
+  if (!orderId) return res.status(400).json({ error: '缺少 orderId' });
+
   try {
     const token = await getPayPalToken();
     const ppRes = await fetch(`${PAYPAL_API}/v2/checkout/orders/${orderId}/capture`, {
@@ -76,6 +98,7 @@ router.post('/capture', async (req, res) => {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     });
     const ppData = await ppRes.json();
+    console.log('PayPal capture 响应:', JSON.stringify(ppData));
 
     if (ppData.status === 'COMPLETED') {
       const order = await prisma.order.findFirst({ where: { paypalOrderId: orderId } });
@@ -87,26 +110,33 @@ router.post('/capture', async (req, res) => {
           where: { id: order.userId },
           data: {
             credits: { increment: plan.credits },
-            plan: isSubscription ? order.type : undefined,
-            planExpireAt: isSubscription ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : undefined,
+            ...(isSubscription && {
+              plan: order.type,
+              planExpireAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            }),
           }
         });
       }
       res.json({ success: true });
     } else {
-      res.status(400).json({ error: '支付未完成' });
+      console.error('PayPal 支付状态非 COMPLETED:', ppData.status, JSON.stringify(ppData));
+      res.status(400).json({ error: `支付状态: ${ppData.status}，未完成` });
     }
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: '支付确认失败' });
+    console.error('capture 错误:', err);
+    res.status(500).json({ error: err.message || '支付确认失败' });
   }
 });
 
 // 获取用户次数
 router.get('/credits/:userId', async (req, res) => {
-  const user = await prisma.user.findUnique({ where: { id: req.params.userId } });
-  if (!user) return res.status(404).json({ error: '用户不存在' });
-  res.json({ credits: user.credits, plan: user.plan });
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.params.userId } });
+    if (!user) return res.status(404).json({ error: '用户不存在' });
+    res.json({ credits: user.credits, plan: user.plan, planExpireAt: user.planExpireAt });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;

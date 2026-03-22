@@ -4,17 +4,31 @@ import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import NavBar from '../components/NavBar';
 
-const PAYPAL_CLIENT_ID = 'AfumbvylfxbD_hP3UAwsPb4O9pEGoDnuW0TaNVHq780HexGJ9SVb1P2FJ2shmLSqXLyZGjf_ZcEWIQgk';
+// 从环境变量读取 PayPal Client ID（沙箱/正式由 VITE_PAYPAL_MODE 控制）
+const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || '';
 
 function PayPalButton({ plan, userId, onSuccess }) {
   const containerRef = useRef(null);
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!PAYPAL_CLIENT_ID) {
+      setError('PayPal Client ID 未配置，请检查 .env 文件');
+      return;
+    }
+    // 防止重复加载同一个 client-id 的 SDK
     if (window.paypal) { setLoaded(true); return; }
+    const existingScript = document.querySelector('script[data-paypal-sdk]');
+    if (existingScript) {
+      existingScript.addEventListener('load', () => setLoaded(true));
+      return;
+    }
     const script = document.createElement('script');
     script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD`;
+    script.setAttribute('data-paypal-sdk', 'true');
     script.onload = () => setLoaded(true);
+    script.onerror = () => setError('PayPal SDK 加载失败，请检查网络或 Client ID');
     document.body.appendChild(script);
   }, []);
 
@@ -29,6 +43,7 @@ function PayPalButton({ plan, userId, onSuccess }) {
           body: JSON.stringify({ type: plan.id, userId }),
         });
         const data = await res.json();
+        if (!data.orderId) throw new Error(data.error || '创建订单失败');
         return data.orderId;
       },
       onApprove: async (data) => {
@@ -39,10 +54,19 @@ function PayPalButton({ plan, userId, onSuccess }) {
         });
         const result = await res.json();
         if (result.success) onSuccess(plan);
+        else setError('支付确认失败，请联系客服');
+      },
+      onError: (err) => {
+        console.error('PayPal error:', err);
+        setError('PayPal 支付出错，请刷新后重试');
       },
       style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay', height: 40 },
     }).render(containerRef.current);
   }, [loaded, plan, userId]);
+
+  if (error) return (
+    <div className="mt-3 p-3 bg-red-500/20 border border-red-400/50 rounded-lg text-red-300 text-sm">{error}</div>
+  );
 
   return <div ref={containerRef} className="mt-3" />;
 }
