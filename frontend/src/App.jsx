@@ -5,7 +5,8 @@ import Test from './pages/Test';
 import Result from './pages/Result';
 import History from './pages/History';
 import Profile from './pages/Profile';
-import Pricing from './pages/Pricing';
+// ===== 付费功能已禁用 =====
+// import Pricing from './pages/Pricing';
 
 function App() {
   return (
@@ -17,7 +18,8 @@ function App() {
         <Route path="/result/:id" element={<Result />} />
         <Route path="/history" element={<History />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/pricing" element={<Pricing />} />
+        {/* ===== 付费功能已禁用 ===== */}
+        {/* <Route path="/pricing" element={<Pricing />} /> */}
       </Routes>
     </BrowserRouter>
   );

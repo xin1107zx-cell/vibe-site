@@ -48,11 +48,11 @@ export default function Test() {
       });
       navigate(`/result/${response.data.id}`);
     } catch (error) {
-      // 次数不足 → 跳转到价格页
-      if (error.response?.status === 403 && error.response?.data?.error === 'NO_CREDITS') {
-        navigate('/pricing?reason=no_credits');
-        return;
-      }
+      // ===== 付费功能已禁用，注释掉 NO_CREDITS 跳转 =====
+      // if (error.response?.status === 403 && error.response?.data?.error === 'NO_CREDITS') {
+      //   navigate('/pricing?reason=no_credits');
+      //   return;
+      // }
       console.error('Submit failed:', error);
       alert(t('test.submitError'));
     }
